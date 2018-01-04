@@ -59,7 +59,6 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
                     account = new Account();
                     account.setAddress(address);
                     account.setBalance(bal.toString());
-                    boolean unlocked = false;
                     account.setUnlocked(isUnlocked(address));
                     accounts.add(account);
 
