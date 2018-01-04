@@ -13,7 +13,7 @@ public class TransactionResult {
     }
 
 	public TransactionResult(String id) {
-	    this.id = id;
+        this.setId(id);
     }
 
 	public String getId() {
@@ -21,6 +21,9 @@ public class TransactionResult {
 	}
 
 	public void setId(String id) {
+        if (!id.startsWith("0x")) {
+            id = "0x".concat(id);
+        }
 		this.id = id;
 	}
 

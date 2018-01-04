@@ -41,6 +41,7 @@ public class Block implements Serializable {
     private String miner;
     private BigInteger difficulty;
     private BigInteger totalDifficulty;
+    @Column(length = 2048)
     private String extraData;
     private BigInteger gasLimit;
     private BigInteger gasUsed;

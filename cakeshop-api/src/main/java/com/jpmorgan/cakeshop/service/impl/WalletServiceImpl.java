@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WalletServiceImpl implements WalletService, GethRpcConstants {
 
-    private static final String DUMMY_PAYLOAD_HASH = AbiUtils.sha3AsHex("foobar");
+    private static final String DUMMY_PAYLOAD_HASH = "0x".concat(AbiUtils.sha3AsHex("foobar"));
     private static final Logger LOG = LoggerFactory.getLogger(WalletServiceImpl.class);
 
     @Autowired
@@ -40,7 +40,7 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
     @SuppressWarnings("unchecked")
     @Override
     public List<Account> list() throws APIException {
-
+        
         List<String> accountList = null;
         List<Account> accounts = null;
         Account account = null;
@@ -59,13 +59,14 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
                     account = new Account();
                     account.setAddress(address);
                     account.setBalance(bal.toString());
+                    boolean unlocked = false;
                     account.setUnlocked(isUnlocked(address));
                     accounts.add(account);
 
                 }
             }
         }
-
+        
         return accounts;
     }
 
@@ -141,7 +142,7 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
                 return true;
             }
         } catch (APIException e) {
-            if (!e.getMessage().contains("account is locked")) {
+            if (!(e.getMessage().contains("account is locked") || e.getMessage().contains("authentication needed: password or unlock"))) {
                 throw e;
             }
         }

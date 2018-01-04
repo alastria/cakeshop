@@ -9,6 +9,7 @@ import com.jpmorgan.cakeshop.error.CompilerException;
 import com.jpmorgan.cakeshop.model.Contract;
 import com.jpmorgan.cakeshop.model.ContractABI;
 import com.jpmorgan.cakeshop.model.ContractABI.Constructor;
+import com.jpmorgan.cakeshop.model.json.WalletPostJsonRequest;
 import com.jpmorgan.cakeshop.model.Transaction;
 import com.jpmorgan.cakeshop.model.TransactionRequest;
 import com.jpmorgan.cakeshop.model.TransactionResult;
@@ -160,7 +161,7 @@ public class ContractServiceImpl implements ContractService {
 
             Map<String, Object> compiled = (Map<String, Object>) contractRes.getValue();
 
-            contract.setBinary((String) compiled.get("bin"));
+            contract.setBinary("0x".concat((String) compiled.get("bin")));
             contract.setABI((String) compiled.get("abi"));
             contract.setGasEstimates((Map<String, Object>) compiled.get("gas"));
             contract.setFunctionHashes((Map<String, String>) compiled.get("hashes"));
@@ -209,7 +210,7 @@ public class ContractServiceImpl implements ContractService {
             }
             data = data + Hex.toHexString(constructor.encode(args));
         }
-
+        
         Map<String, Object> contractArgs = new HashMap<>();
         contractArgs.put("from", getAddress(from));
         contractArgs.put("data", data);
@@ -344,12 +345,24 @@ public class ContractServiceImpl implements ContractService {
     }
 
     private String getAddress(String from) throws APIException {
+        
         if (StringUtils.isNotBlank(from)) {
             return from;
         }
         if (defaultFromAddress == null) {
             defaultFromAddress = walletService.list().get(0).getAddress();
         }
+
+        if (!walletService.isUnlocked(defaultFromAddress)) {
+            WalletPostJsonRequest request = new WalletPostJsonRequest();
+            request.setAccount(defaultFromAddress);
+            request.setAccountPassword("Passw0rd");
+            request.setFromAccount(defaultFromAddress);
+            if (!walletService.unlockAccount(request)) {
+                throw new APIException("Account can't be unlocked.");
+            }
+        }
+        
         return defaultFromAddress;
     }
 

@@ -108,10 +108,10 @@ public class GethHttpServiceImpl implements GethHttpService {
         this.jsonContentHeaders = new HttpHeaders();
         this.jsonContentHeaders.setContentType(APPLICATION_JSON);
     }
-
+    
     private String executeGethCallInternal(String json) throws APIException {
+        String res = null;
         try {
-
             if (LOG.isDebugEnabled()) {
                 LOG.debug("> " + json);
             }
@@ -119,8 +119,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             HttpEntity<String> httpEntity = new HttpEntity<>(json, jsonContentHeaders);
             ResponseEntity<String> response = restTemplate.exchange(gethConfig.getRpcUrl(), POST, httpEntity, String.class);
 
-            String res = response.getBody();
-
+            res = response.getBody();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("< " + res.trim());
             }
@@ -128,9 +127,13 @@ public class GethHttpServiceImpl implements GethHttpService {
             return res;
 
         } catch (RestClientException e) {
+            LOG.error("> " + json);
+            if (res != null) {
+                LOG.error("< " + res.trim());
+            }            
             LOG.error("RPC call failed - " + ExceptionUtils.getRootCauseMessage(e));
             throw new APIException("RPC call failed", e);
-        }
+        } 
     }
 
     private String requestToJson(Object request) throws APIException {
@@ -159,6 +162,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         try {
             data = OBJECT_MAPPER.readValue(response, Map.class);
         } catch (IOException e) {
+            LOG.error("> ".concat(requestToJson(request)));
             throw new APIException("RPC call failed", e);
         }
 
@@ -181,6 +185,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             return results;
 
         } catch (IOException e) {
+            LOG.error("> ".concat(requestToJson(requests)));
             throw new APIException("RPC call failed", e);
         }
     }

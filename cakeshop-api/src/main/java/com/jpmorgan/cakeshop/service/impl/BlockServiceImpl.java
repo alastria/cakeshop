@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.StringUtils;
 
 @Service
 public class BlockServiceImpl implements BlockService {
@@ -32,7 +33,7 @@ public class BlockServiceImpl implements BlockService {
             input = id;
         } else if (number != null && number >= 0) {
             method = "eth_getBlockByNumber";
-            input = number;
+            input = "0x".concat(Long.toHexString(number));
         } else if (tag != null && !tag.isEmpty()) {
             method = "eth_getBlockByNumber";
             input = tag;
@@ -41,7 +42,7 @@ public class BlockServiceImpl implements BlockService {
         if (method == null || input == null) {
             throw new APIException("Bad request");
         }
-
+        
         Map<String, Object> blockData
                 = gethService.executeGethCall(method, new Object[]{input, false});
 
@@ -85,7 +86,8 @@ public class BlockServiceImpl implements BlockService {
     public List<Block> get(long start, long end) throws APIException {
         List<RequestModel> reqs = new ArrayList<>();
         for (long i = start; i <= end; i++) {
-            reqs.add(new RequestModel("eth_getBlockByNumber", new Object[]{i, false}, 42L));
+            reqs.add(new RequestModel("eth_getBlockByNumber", 
+                new Object[]{"0x".concat(Long.toHexString(i)), false}, 42L));
         }
         return batchGet(reqs);
     }
@@ -94,7 +96,8 @@ public class BlockServiceImpl implements BlockService {
     public List<Block> get(List<Long> numbers) throws APIException {
         List<RequestModel> reqs = new ArrayList<>();
         for (Long num : numbers) {
-            reqs.add(new RequestModel("eth_getBlockByNumber", new Object[]{num, false}, 42L));
+            reqs.add(new RequestModel("eth_getBlockByNumber", 
+                new Object[]{"0x".concat(Long.toHexString(num)), false}, 42L));
         }
         return batchGet(reqs);
     }

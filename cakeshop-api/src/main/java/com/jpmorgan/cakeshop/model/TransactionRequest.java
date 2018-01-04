@@ -15,7 +15,8 @@ public class TransactionRequest {
 
     public static final String BLOCK_LATEST = "latest";
 
-    public static final int DEFAULT_GAS = 3_149_000;
+    public static final String DEFAULT_GAS = "0x".concat(Integer.toHexString(
+        3_149_000));
 
     private String fromAddress;
 
@@ -40,7 +41,7 @@ public class TransactionRequest {
     }
 
     public TransactionRequest(String fromAddress, String contractAddress, ContractABI abi, String method, Object[] args, boolean isRead, Object blockNumber) throws APIException {
-        this.fromAddress = fromAddress;
+        this.setFromAddress(fromAddress);
         this.contractAddress = contractAddress;
         this.abi = abi;
         this.isRead = isRead;
@@ -57,12 +58,16 @@ public class TransactionRequest {
     }
 
     public Object[] toGethArgs() {
-
+        String data;
         Map<String, Object> req = new HashMap<>();
         req.put("from", fromAddress);
         req.put("to", contractAddress);
         req.put("gas", DEFAULT_GAS);
-        req.put("data", function.encodeAsHex(args));
+        data = function.encodeAsHex(args);
+        if (!data.startsWith("0x")) {
+            data = "0x".concat(data);
+        }
+        req.put("data", data);
 
         if (StringUtils.isNotBlank(privateFrom)) {
             req.put("privateFrom", privateFrom);
@@ -88,6 +93,9 @@ public class TransactionRequest {
     }
 
     public void setFromAddress(String fromAddress) {
+        if (fromAddress != null && !fromAddress.startsWith("0x")) {
+            fromAddress = "0x".concat(fromAddress);
+        }
         this.fromAddress = fromAddress;
     }
 
