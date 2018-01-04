@@ -27,7 +27,7 @@
     "bootstrap": "^3.3.7",
     "bootstrap-tour": "^0.11.0",
     "codemirror": "^5.23.0",
-    "d3": "^4.2.1",
+    "d3": "4.2.1",
     "draggabilly": "^2.1.1",
     "epoch-charting-ie-patched": "0.8.4-patched",
     "jif-dashboard": "^1.0.0",
