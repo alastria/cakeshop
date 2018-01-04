@@ -356,6 +356,7 @@ public class ContractServiceImpl implements ContractService {
         if (!walletService.isUnlocked(defaultFromAddress)) {
             WalletPostJsonRequest request = new WalletPostJsonRequest();
             request.setAccount(defaultFromAddress);
+            // TODO: extraer esto de una base de datos o de un fichero de properties.
             request.setAccountPassword("Passw0rd");
             request.setFromAccount(defaultFromAddress);
             if (!walletService.unlockAccount(request)) {
