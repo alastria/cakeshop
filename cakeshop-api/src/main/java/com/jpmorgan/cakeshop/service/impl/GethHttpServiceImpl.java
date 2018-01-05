@@ -152,6 +152,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> executeGethCall(RequestModel request) throws APIException {
+        Map<String, Object> retorno = null; 
         String response = executeGethCallInternal(requestToJson(request));
 
         if (StringUtils.isEmpty(response)) {
@@ -166,7 +167,15 @@ public class GethHttpServiceImpl implements GethHttpService {
             throw new APIException("RPC call failed", e);
         }
 
-        return processResponse(data);
+        try {
+            retorno = processResponse(data);
+        } catch(APIException ex) {
+            LOG.error("> ".concat(requestToJson(request)));
+            LOG.error("< ".concat(data.toString()));
+            throw ex;
+        }
+
+        return retorno;
     }
 
     @SuppressWarnings("unchecked")

@@ -224,6 +224,7 @@ public class ContractServiceImpl implements ContractService {
             contractArgs.put("privateFor", privateFor);
         }
 
+        unlockAccount(contractArgs.get("from").toString());
         Map<String, Object> contractRes = geth.executeGethCall("eth_sendTransaction", new Object[]{contractArgs});
 
         TransactionResult tr = new TransactionResult();
@@ -324,6 +325,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public TransactionResult transact(TransactionRequest request) throws APIException {
         request.setFromAddress(getAddress(request.getFromAddress())); // make sure we have a non-null from address
+        unlockAccount(request.getFromAddress());
         Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", request.toGethArgs());
         return new TransactionResult((String) readRes.get("_result"));
     }
@@ -353,18 +355,22 @@ public class ContractServiceImpl implements ContractService {
             defaultFromAddress = walletService.list().get(0).getAddress();
         }
 
-        if (!walletService.isUnlocked(defaultFromAddress)) {
+        unlockAccount(defaultFromAddress);
+        
+        return defaultFromAddress;
+    }
+
+    private void unlockAccount(String from) throws APIException {
+        if (!walletService.isUnlocked(from)) {
             WalletPostJsonRequest request = new WalletPostJsonRequest();
-            request.setAccount(defaultFromAddress);
+            request.setAccount(from);
             // TODO: extraer esto de una base de datos o de un fichero de properties.
             request.setAccountPassword("Passw0rd");
-            request.setFromAccount(defaultFromAddress);
+            request.setFromAccount(from);
             if (!walletService.unlockAccount(request)) {
                 throw new APIException("Account can't be unlocked.");
             }
         }
-        
-        return defaultFromAddress;
     }
 
     private ContractABI lookupABI(String id) throws APIException {
