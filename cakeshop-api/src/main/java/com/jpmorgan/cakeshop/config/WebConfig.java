@@ -61,13 +61,13 @@ public class WebConfig extends WebMvcConfigurerAdapter {
        
         if (Boolean.valueOf(env.getProperty("geth.cors.enabled"))) {
             registry.addMapping("/**")
-                    // .allowedOrigins(env.getProperty("geth.cors.url"));
-                    .allowedOrigins(env.getProperty("*"));
+                    .allowedOrigins(env.getProperty("geth.cors.url"));
+                    // .allowedOrigins(env.getProperty("*"));
 
         } else if (Boolean.valueOf(props.getProperty("geth.cors.enabled"))) {
             registry.addMapping("/**")
-            // .allowedOrigins(props.getProperty("geth.cors.url"));
-            .allowedOrigins(env.getProperty("*"));
+            .allowedOrigins(props.getProperty("geth.cors.url"));
+            // .allowedOrigins(env.getProperty("*"));
         }
     }
 
